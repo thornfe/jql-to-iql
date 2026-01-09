@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { parseJQL, ASTNode } from '../src/index';
+import { parseJQL } from '../src/index';
 
 describe('JQL Parser', () => {
   describe('Simple Binary Expressions', () => {
-    it('should parse simple equality expression', () => {
+    it('解析字段相等比较表达式 (project = JQL)', () => {
       const result = parseJQL('project = JQL');
 
       expect(result).not.toBeNull();
@@ -13,7 +13,7 @@ describe('JQL Parser', () => {
       expect(result?.right).toMatchObject({ type: 'Literal', value: 'JQL' });
     });
 
-    it('should parse not equal expression', () => {
+    it('解析字段不等比较表达式 (status != Done)', () => {
       const result = parseJQL('status != Done');
 
       expect(result).not.toBeNull();
@@ -23,7 +23,7 @@ describe('JQL Parser', () => {
       expect(result?.right).toMatchObject({ type: 'Literal', value: 'Done' });
     });
 
-    it('should parse greater than expression', () => {
+    it('解析字段大于比较表达式 (priority > 3)', () => {
       const result = parseJQL('priority > 3');
 
       expect(result).not.toBeNull();
@@ -31,7 +31,7 @@ describe('JQL Parser', () => {
       expect(result?.operator).toBe('>');
     });
 
-    it('should parse less than expression', () => {
+    it('解析字段小于比较表达式 (votes < 10)', () => {
       const result = parseJQL('votes < 10');
 
       expect(result).not.toBeNull();
@@ -41,7 +41,7 @@ describe('JQL Parser', () => {
   });
 
   describe('Logical Expressions', () => {
-    it('should parse AND expression', () => {
+    it('解析 AND 逻辑运算符连接的复合条件', () => {
       const result = parseJQL('project = JQL AND status = Done');
 
       expect(result).not.toBeNull();
@@ -61,7 +61,7 @@ describe('JQL Parser', () => {
       expect(result?.right?.right).toMatchObject({ type: 'Literal', value: 'Done' });
     });
 
-    it('should parse OR expression', () => {
+    it('解析 OR 逻辑运算符连接的复合条件', () => {
       const result = parseJQL('priority = High OR priority = Critical');
 
       expect(result).not.toBeNull();
@@ -73,7 +73,7 @@ describe('JQL Parser', () => {
       expect(result?.right?.type).toBe('BinaryExpression');
     });
 
-    it('should parse multiple AND expressions', () => {
+    it('解析多个 AND 运算符组成的链式条件', () => {
       const result = parseJQL('project = JQL AND status = Done');
 
       expect(result).not.toBeNull();
@@ -87,7 +87,7 @@ describe('JQL Parser', () => {
   });
 
   describe('Complex Expressions', () => {
-    it('should parse mixed AND/OR expression', () => {
+    it('解析混合 AND/OR 运算符及括号分组的复杂表达式', () => {
       const result = parseJQL('project = JQL AND (status = Done OR status = InProgress)');
 
       expect(result).not.toBeNull();
@@ -95,7 +95,7 @@ describe('JQL Parser', () => {
       expect(['LogicalExpression', 'BinaryExpression']).toContain(result?.type);
     });
 
-    it('should handle quoted strings', () => {
+    it('解析包含双引号的字符串字面量', () => {
       const result = parseJQL('project = "My Project"');
 
       expect(result).not.toBeNull();
@@ -104,14 +104,14 @@ describe('JQL Parser', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should return null for empty string', () => {
+    it('处理空字符串输入的边界情况', () => {
       const result = parseJQL('');
 
       // Empty query might still parse as a tree, check the structure
       expect(result === null || result.type !== undefined).toBe(true);
     });
 
-    it('should handle single field query', () => {
+    it('解析仅包含单个字段比较的简单查询', () => {
       const result = parseJQL('project = JQL');
 
       expect(result).not.toBeNull();
@@ -120,7 +120,7 @@ describe('JQL Parser', () => {
   });
 
   describe('Field Types', () => {
-    it('should correctly identify field nodes', () => {
+    it('正确识别并解析字段节点类型', () => {
       const result = parseJQL('assignee = currentUser()');
 
       expect(result).not.toBeNull();
@@ -128,7 +128,7 @@ describe('JQL Parser', () => {
       expect(result?.left?.type).toBe('Field');
     });
 
-    it('should correctly identify literal nodes', () => {
+    it('正确识别并解析字面量节点类型', () => {
       const result = parseJQL('status = Done');
 
       expect(result).not.toBeNull();
