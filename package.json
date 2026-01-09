@@ -2,10 +2,30 @@
   "name": "@thornfe/jql2iql",
   "version": "0.0.1",
   "description": "A Translator That Converts Jira JQL into Gitee IQL",
-  "main": "index.js",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "dev": "ts-node src/index.ts",
-    "test": "ts-mocha test/**/*.test.ts"
+    "dev": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsdown"
   },
   "repository": {
     "type": "git",
@@ -19,20 +39,17 @@
   },
   "devDependencies": {
     "@atlaskit/jql-parser": "^2.0.1",
-    "@types/chai": "^4.3.11",
-    "@types/mocha": "^10.0.6",
     "@types/node": "^22.14.1",
     "@typescript-eslint/eslint-plugin": "^8.50.1",
     "@typescript-eslint/parser": "^8.50.1",
     "antlr4ts": "0.5.0-alpha.4",
-    "chai": "^6.2.2",
     "eslint": "^9.39.2",
-    "mocha": "^11.3.0",
-    "ts-mocha": "^11.1.0",
     "ts-node": "^10.9.2",
+    "tsdown": "^0.2.16",
     "tslib": "^2.8.1",
-    "tsup": "^8.0.2",
-    "typescript": "^5.8.3"
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.8"
   },
   "homepage": "https://github.com/thornfe/jql-to-iql#readme"
 }

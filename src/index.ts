@@ -301,7 +301,8 @@ export function parseJQL(jqlText: string): ASTNode | null {
 }
 
 // 仅在直接运行文件时执行示例代码
-if (require.main === module) {
+// 在 ES 模块中使用 import.meta.url 来检测
+if (import.meta.url === `file://${process.argv[1]}`) {
   const jqlText = "project = JQL AND status = Done";
   const charStream = CharStreams.fromString(jqlText);
   const lexer = new JQLLexer(charStream);
