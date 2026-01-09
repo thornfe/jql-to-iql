@@ -1,0 +1,38 @@
+{
+  "name": "@thornfe/jql2iql",
+  "version": "0.0.1",
+  "description": "A Translator That Converts Jira JQL into Gitee IQL",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "test": "ts-mocha test/**/*.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thornfe/jql-to-iql.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/thornfe/jql-to-iql/issues"
+  },
+  "devDependencies": {
+    "@atlaskit/jql-parser": "^2.0.1",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^22.14.1",
+    "@typescript-eslint/eslint-plugin": "^8.50.1",
+    "@typescript-eslint/parser": "^8.50.1",
+    "antlr4ts": "0.5.0-alpha.4",
+    "chai": "^6.2.2",
+    "eslint": "^9.39.2",
+    "mocha": "^11.3.0",
+    "ts-mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "tsup": "^8.0.2",
+    "typescript": "^5.8.3"
+  },
+  "homepage": "https://github.com/thornfe/jql-to-iql#readme"
+}
