@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest';
 import { parseJQL } from '../../src/index';
-import { expectBinaryExpression, expectLiteral, field, literal, list, func } from '../helpers';
+import { expectBinaryExpression, field, literal, list, func } from '../helpers';
 
 describe('Version AST', () => {
   it('解析版本字段使用 EMPTY、函数和字面量混合列表的 in 条件', () => {
@@ -34,10 +34,11 @@ describe('Version AST', () => {
   it('解析版本字段的 is EMPTY 判空表达式', () => {
     const result = parseJQL('版本单选 is EMPTY');
 
-    // Note: This seems to be a parsing issue, but we'll test the actual behavior
-    expectLiteral({
+    expectBinaryExpression({
       node: result,
-      value: '版本单选'
+      operator: 'is',
+      left: field('版本单选'),
+      right: literal('EMPTY')
     });
   });
 
@@ -46,7 +47,7 @@ describe('Version AST', () => {
 
     expectBinaryExpression({
       node: result,
-      operator: 'in',
+      operator: 'not in',
       left: field('版本单选'),
       right: list([
         literal('"Version 1.0"')

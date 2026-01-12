@@ -21,13 +21,13 @@ export interface BinaryExpression extends BaseASTNode {
 }
 
 /**
- * 逻辑表达式节点 (如: expr AND expr, expr OR expr)
+ * 逻辑表达式节点 (如: expr AND expr, expr OR expr, NOT expr)
  */
 export interface LogicalExpression extends BaseASTNode {
   type: 'LogicalExpression';
-  operator: 'AND' | 'OR';
+  operator: 'AND' | 'OR' | 'NOT';
   left: ASTNode;
-  right: ASTNode;
+  right?: ASTNode;
 }
 
 /**
@@ -116,3 +116,88 @@ export type ASTNode =
   | OrderByField
   | OrderByClause
   | JQLQuery;
+
+/**
+ * Jira 字段类型键
+ */
+export type FieldTypeKey =
+  | 'createdBy'
+  | 'updatedBy'
+  | 'Assignee'
+  | 'Reporter'
+  | 'User'
+  | 'Status'
+  | 'Version'
+  | 'CustomVersion'
+  | 'Sprint'
+  | 'Priority'
+  | 'Workspace'
+  | 'ItemType'
+  | 'Name'
+  | 'Text'
+  | 'LongText'
+  | 'Editor'
+  | 'Key'
+  | 'StoryPoint'
+  | 'Number'
+  | 'Date'
+  | 'updatedAt'
+  | 'createdAt'
+  | 'UserGroup'
+  | 'Tree'
+  | 'Tag'
+  | 'Cascade'
+  | 'Checkbox'
+  | 'Dropdown'
+  | 'Radio'
+  // 以下暂未支持
+  | 'HyperLink'
+  | 'BindWorkspace'
+  | 'StatusType'
+  | 'File';
+
+/**
+ * Jira 字段映射配置
+ */
+export interface JiraFieldConfig {
+  objectId: string;
+  customFieldKey: string;
+  fieldTypeKey: FieldTypeKey;
+  fieldTypeId?: string;
+}
+
+/**
+ * Jira 字段映射表
+ */
+export type JiraFieldMap = Record<string, JiraFieldConfig>;
+
+/**
+ * 常量映射配置
+ */
+export interface ConstantsMap {
+  /**
+   * 项目映射：JQL project key -> IQL 空间名称
+   */
+  projectMap?: Record<string, string>;
+
+  /**
+   * 版本映射：JQL 版本名称 -> IQL 版本 objectId 数组
+   */
+  versionMap?: Record<string, string[]>;
+
+  /**
+   * 模块映射：JQL component 名称 -> IQL 模块 objectId
+   */
+  component?: Record<string, string>;
+
+  /**
+   * 级联选项映射：cascadeOption value -> label
+   * 例如：{ "10011": "广东" }
+   */
+  cascade?: Record<string, string>;
+
+  /**
+   * 字段映射配置
+   */
+  fieldMap?: JiraFieldMap;
+}

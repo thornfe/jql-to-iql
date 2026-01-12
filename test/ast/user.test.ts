@@ -47,7 +47,7 @@ describe('User AST', () => {
 
     expectBinaryExpression({
       node: result,
-      operator: 'in',
+      operator: 'not in',
       left: field('用户单选'),
       right: list([
         literal('"user1"')

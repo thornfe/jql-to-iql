@@ -1,0 +1,39 @@
+# Source files
+src/
+test/
+benchmark/
+
+# Config files
+tsconfig.json
+tsdown.config.ts
+vitest.config.ts
+eslint.config.js
+.eslintrc*
+
+# Development files
+*.log
+.DS_Store
+.vscode/
+.idea/
+
+# Test and coverage
+coverage/
+.nyc_output/
+
+# Build artifacts (keep only dist/)
+node_modules/
+*.tsbuildinfo
+
+# Git
+.git/
+.gitignore
+.github/
+
+# CI/CD
+.travis.yml
+.gitlab-ci.yml
+.circleci/
+
+# Other
+*.md
+!README.md

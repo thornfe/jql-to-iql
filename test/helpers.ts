@@ -1,17 +1,17 @@
 import { expect } from 'vitest';
 import type {
   ASTNode,
-  BinaryExpression,
-  LogicalExpression,
   Field,
   Literal,
   List,
   FunctionNode,
-  JQLQuery,
   OrderByClause,
   OrderByField,
   OrderDirection
 } from '../src/types';
+import { transformFieldsToConstantsMap } from '../src/field-transformer';
+import { fields } from './fields';
+import { fieldTypes } from './fieldTypes';
 
 /**
  * 验证二元表达式 (如: field = value, field in list)
@@ -58,19 +58,6 @@ export function expectField(options: {
   expect(node).not.toBeNull();
   expect(node?.type).toBe('Field');
   expect(node?.value).toBe(fieldName);
-}
-
-/**
- * 验证字面量节点
- */
-export function expectLiteral(options: {
-  node: ASTNode | null;
-  value: string | number;
-}) {
-  const { node, value } = options;
-  expect(node).not.toBeNull();
-  expect(node?.type).toBe('Literal');
-  expect(node?.value).toBe(value);
 }
 
 /**
@@ -181,7 +168,7 @@ export const func = (name: string, args: any[] = []): Partial<FunctionNode> => (
  */
 export const list = (elements: Partial<ASTNode>[]): Partial<List> => ({
   type: 'List',
-  elements
+  elements: elements as ASTNode[]
 });
 
 /**
@@ -198,5 +185,24 @@ export const orderByField = (field: string, direction: OrderDirection = 'ASC'): 
  */
 export const orderByClause = (fields: Array<{ field: string; direction: OrderDirection }>): Partial<OrderByClause> => ({
   type: 'OrderByClause',
-  fields: fields.map(f => orderByField(f.field, f.direction))
+  fields: fields.map(f => orderByField(f.field, f.direction)) as OrderByField[]
+});
+
+/**
+ * 公共测试数据配置
+ * 通过 transformFieldsToConstantsMap 从 fields 数组转换而来
+ */
+export const testConstants = transformFieldsToConstantsMap({
+  fields: fields as any,
+  fieldTypes: fieldTypes as any,
+  projectMap: {
+    BBB: "BBB",
+    SCRU: "SCRU",
+    AA: "项目 A",
+  },
+  versionMap: {
+    "Version 1.0": ["10000", "10100"],
+    "Version 2.0": ["10001"],
+    "Version 3.0": ["10002"],
+  }
 });

@@ -5,5 +5,4 @@ export default defineConfig({
   format: ['cjs', 'esm'],
   dts: true,
   clean: true,
-  external: [/^antlr4ts/, /^@atlaskit/],
 });
