@@ -228,10 +228,16 @@ function convertOrderByClause(orderBy: any, constantsMap: ConstantsMap): string 
     const fieldName = orderField.field;
     const direction = orderField.direction.toLowerCase();
 
-    // 处理普通字段（可能有映射）
+    // 统一策略：只处理有映射配置的字段
     const normalizedFieldName = normalizeFieldName(fieldName);
     const fieldConfig = fieldMap[normalizedFieldName];
-    const iqlFieldName = fieldConfig?.customFieldKey || fieldName;
+
+    // 如果没有找到对应的 IQL 字段映射，忽略该字段
+    if (!fieldConfig || !fieldConfig.customFieldKey) {
+      continue;
+    }
+
+    const iqlFieldName = fieldConfig.customFieldKey;
     orderFields.push(`${iqlFieldName} ${direction}`);
   }
 

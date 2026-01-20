@@ -1,6 +1,6 @@
 {
   "name": "@thornfe/jql2iql",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A Translator That Converts Jira JQL into Gitee IQL",
   "type": "module",
   "main": "./dist/index.cjs",
