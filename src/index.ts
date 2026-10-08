@@ -25,8 +25,13 @@ export function parseJQL(jqlText: string): ASTNode | null {
   const lexer = new JQLLexer(charStream);
   const tokenStream = new CommonTokenStream(lexer);
   const parser = new JQLParser(tokenStream);
+  let hasSyntaxError = false;
+  const errorListener = { syntaxError: () => { hasSyntaxError = true; } };
+  lexer.addErrorListener(errorListener);
+  parser.addErrorListener(errorListener);
   const parsedJQLTree = parser.jqlQuery();
 
+  if (hasSyntaxError) return null;
   return buildAST(parsedJQLTree);
 }
 

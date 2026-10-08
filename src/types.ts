@@ -200,4 +200,7 @@ export interface ConstantsMap {
    * 字段映射配置
    */
   fieldMap?: JiraFieldMap;
+
+  /** Enum mappings whose field names collide with reserved configuration keys. */
+  enumValueMaps?: Record<string, Record<string, string>>;
 }

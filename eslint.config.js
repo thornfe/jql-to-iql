@@ -1,7 +1,7 @@
-const tsParser = require('@typescript-eslint/parser');
-const tsPlugin = require('@typescript-eslint/eslint-plugin');
+import tsParser from '@typescript-eslint/parser';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 
-module.exports = [
+export default [
   {
     ignores: ['dist/**']
   },
@@ -18,6 +18,7 @@ module.exports = [
       '@typescript-eslint': tsPlugin
     },
     rules: {
+      ...tsPlugin.configs.recommended.rules,
       'indent': ['error', 2, {
         'SwitchCase': 1,
         'VariableDeclarator': 1,
@@ -41,7 +42,7 @@ module.exports = [
         'ignoreComments': false
       }],
       '@typescript-eslint/no-explicit-any': 'off',
-      ...tsPlugin.configs.recommended.rules
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
     }
   }
 ];

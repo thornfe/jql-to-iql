@@ -86,6 +86,7 @@ export function astToIQL(ast: ASTNode, constantsMap: ConstantsMap): string {
     let result = '';
     if (ast.where) {
       result = astToIQL(ast.where, constantsMap);
+      if (!result) return '';
     }
 
     // 处理 ORDER BY
@@ -253,8 +254,17 @@ function convertOrderByClause(orderBy: any, constantsMap: ConstantsMap): string 
  */
 function convertLogicalExpression(expr: any, constantsMap: ConstantsMap): string {
   const operator = expr.operator;
-  const left = expr.left ? astToIQL(expr.left, constantsMap) : '';
-  const right = expr.right ? astToIQL(expr.right, constantsMap) : '';
+  let left = expr.left ? astToIQL(expr.left, constantsMap) : '';
+  let right = expr.right ? astToIQL(expr.right, constantsMap) : '';
+
+  // Only group children whose precedence would otherwise change the query.
+  const needsGrouping = (node: ASTNode | undefined): boolean =>
+    node?.type === AST_NODE_TYPES.LOGICAL_EXPRESSION && (
+      (operator === LOGICAL_OPERATORS.AND && node.operator === LOGICAL_OPERATORS.OR) ||
+      (operator === LOGICAL_OPERATORS.NOT && node.operator !== LOGICAL_OPERATORS.NOT)
+    );
+  if (left && needsGrouping(expr.left)) left = `(${left})`;
+  if (right && needsGrouping(expr.right)) right = `(${right})`;
 
   if (operator === LOGICAL_OPERATORS.AND) {
     // 如果左侧或右侧转换失败（返回空字符串），则整个表达式无效

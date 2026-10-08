@@ -15,6 +15,7 @@ import {
  * @returns 规范化后的字段名
  */
 export function normalizeFieldName(fieldName: string): string {
+  fieldName = cleanQuotes(fieldName);
   // 匹配 cf[数字] 格式
   const match = fieldName.match(/^cf\[(\d+)\]$/);
   if (match) {
@@ -40,6 +41,11 @@ function filterFunctions(elements: ASTNode[]): ASTNode[] {
 function cleanQuotes(value: string): string {
   if (value.startsWith('"') && value.endsWith('"') && value.length > 1) {
     return value.slice(1, -1);
+  }
+  if (value.startsWith("'") && value.endsWith("'") && value.length > 1) {
+    // Preserve existing escapes, while adapting single-quoted JQL to double-quoted IQL.
+    return value.slice(1, -1).replace(/\\.|"/g, token =>
+      token === "\\'" ? "'" : token === '"' ? '\\"' : token);
   }
   return value;
 }
@@ -201,12 +207,13 @@ function handleComparisonOperator(
 ): string {
   const normalizedOp = operator.toLowerCase();
 
-  if (![
+  const comparisonOperators: readonly string[] = [
     COMPARISON_OPERATORS.GREATER_THAN,
     COMPARISON_OPERATORS.GREATER_THAN_OR_EQUAL,
     COMPARISON_OPERATORS.LESS_THAN,
     COMPARISON_OPERATORS.LESS_THAN_OR_EQUAL
-  ].includes(normalizedOp)) {
+  ];
+  if (!comparisonOperators.includes(normalizedOp)) {
     return '';
   }
 
@@ -387,6 +394,7 @@ export function convertGenericField(
   options: {
     supportsFunctions?: boolean;
     valueMapKey?: keyof ConstantsMap;
+    valueMap?: Record<string, string | string[]>;
     isNumeric?: boolean;
     handleEmpty?: boolean;
     nullKeyword?: 'null' | 'NULL';
@@ -403,7 +411,7 @@ export function convertGenericField(
   const config: FieldConverterConfig = {
     iqlFieldName,
     supportsFunctions: options.supportsFunctions || false,
-    valueMap: options.valueMapKey ? (constantsMap[options.valueMapKey] as Record<string, string | string[]>) : undefined,
+    valueMap: options.valueMap ?? (options.valueMapKey ? (constantsMap[options.valueMapKey] as Record<string, string | string[]>) : undefined),
     isNumeric: options.isNumeric || false,
     handleEmpty: options.handleEmpty || false,
     nullKeyword: options.nullKeyword || 'null',
@@ -441,7 +449,7 @@ export function convertProjectField(operator: string, value: ASTNode, constantsM
   // project = SCRU
   if (operator === '=') {
     if (value.type === 'Literal') {
-      const projectKey = String(value.value);
+      const projectKey = cleanQuotes(String(value.value));
       const projectName = projectMap[projectKey] || projectKey;
       return `"所属空间" = "${projectName}"`;
     }
@@ -455,7 +463,7 @@ export function convertProjectField(operator: string, value: ASTNode, constantsM
       const projectNames = filteredElements
         .filter((el: ASTNode) => el.type === 'Literal')
         .map((el: any) => {
-          const projectKey = String(el.value);
+          const projectKey = cleanQuotes(String(el.value));
           return projectMap[projectKey] || projectKey;
         })
         .map((name: string) => `"${name}"`)
@@ -470,11 +478,11 @@ export function convertProjectField(operator: string, value: ASTNode, constantsM
 /**
  * 转换 issuetype 字段
  */
-export function convertIssuetypeField(operator: string, value: ASTNode, constantsMap: ConstantsMap): string {
+export function convertIssuetypeField(operator: string, value: ASTNode, _constantsMap: ConstantsMap): string {
   // issuetype = Epic
   if (operator === '=') {
     if (value.type === 'Literal') {
-      const issueType = String(value.value);
+      const issueType = cleanQuotes(String(value.value));
       return `"类型" = "${issueType}"`;
     }
   }
@@ -486,7 +494,7 @@ export function convertIssuetypeField(operator: string, value: ASTNode, constant
       const filteredElements = filterFunctions(value.elements);
       const issueTypes = filteredElements
         .filter((el: ASTNode) => el.type === 'Literal')
-        .map((el: any) => `"${String(el.value)}"`)
+        .map((el: any) => `"${cleanQuotes(String(el.value))}"`)
         .join(',');
       return `"类型" in [${issueTypes}]`;
     }
@@ -580,13 +588,13 @@ export function convertCascadeField(
  * @param value 值
  * @param constantsMap 常量映射
  */
-export function convertStatusField(operator: string, value: ASTNode, constantsMap: ConstantsMap): string {
+export function convertStatusField(operator: string, value: ASTNode, _constantsMap: ConstantsMap): string {
   // status = "In Progress"
   if (operator === '=') {
     if (value.type === 'Literal') {
       const statusValue = String(value.value);
       // 移除引号包裹
-      const cleanValue = statusValue.replace(/^"|"$/g, '');
+      const cleanValue = cleanQuotes(statusValue);
       return `"状态" = "${cleanValue}"`;
     }
   }
@@ -601,7 +609,7 @@ export function convertStatusField(operator: string, value: ASTNode, constantsMa
         .map((el: any) => {
           const val = String(el.value);
           // 移除引号包裹
-          const cleanValue = val.replace(/^"|"$/g, '');
+          const cleanValue = cleanQuotes(val);
           return `"${cleanValue}"`;
         })
         .join(', ');
@@ -618,11 +626,11 @@ export function convertStatusField(operator: string, value: ASTNode, constantsMa
  * @param value 值
  * @param constantsMap 常量映射
  */
-export function convertSprintField(operator: string, value: ASTNode, constantsMap: ConstantsMap): string {
+export function convertSprintField(operator: string, value: ASTNode, _constantsMap: ConstantsMap): string {
   // Sprint = 1
   if (operator === '=') {
     if (value.type === 'Literal') {
-      const sprintValue = String(value.value);
+      const sprintValue = cleanQuotes(String(value.value));
       return `"迭代" = "${sprintValue}"`;
     }
   }
@@ -635,7 +643,7 @@ export function convertSprintField(operator: string, value: ASTNode, constantsMa
       const sprintValues = filteredElements
         .filter((el: ASTNode) => el.type === 'Literal')
         .map((el: any) => {
-          const val = String(el.value);
+          const val = cleanQuotes(String(el.value));
           return `"${val}"`;
         })
         .join(', ');
@@ -679,7 +687,8 @@ export function convertEnumField(
 
   return convertGenericField(fieldName, operator, value, constantsMap, {
     handleEmpty: false,
-    valueMapKey: iqlFieldName as keyof ConstantsMap
+    valueMapKey: iqlFieldName as keyof ConstantsMap,
+    valueMap: constantsMap.enumValueMaps?.[iqlFieldName]
   });
 }
 
@@ -989,7 +998,8 @@ export function convertDateField(
       // 包含 EMPTY 和其他值的混合情况
       if (hasEmpty && values.length > 0) {
         const nullOp = normalizedOp === 'in' ? 'is' : 'is not';
-        return `("${iqlFieldName}" ${normalizedOp} [${values.join(', ')}] or "${iqlFieldName}" ${nullOp} null)`;
+        const connector = normalizedOp === 'in' ? 'or' : 'and';
+        return `("${iqlFieldName}" ${normalizedOp} [${values.join(', ')}] ${connector} "${iqlFieldName}" ${nullOp} null)`;
       }
     }
     // 日期类型不支持普通的 IN/NOT IN 操作

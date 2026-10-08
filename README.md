@@ -83,6 +83,16 @@ Convert JQL query string to IQL query string.
 
 **Returns:** IQL query string
 
+JQL and Team IQL are not one-to-one equivalents. Conversion follows the supported
+field and operator mappings; it is not a complete implementation of Jira query
+semantics. Existing conversion rules may omit unsupported functions from lists
+and unmapped `ORDER BY` fields.
+
+Invalid JQL or a filter expression that cannot be converted returns `''`.
+An empty result must not be executed as an unrestricted query. A failed filter
+does not produce a sort-only query; a JQL query containing only `ORDER BY` remains
+supported. An empty input also returns `''`.
+
 #### `parseJQL(jqlText: string): ASTNode | null`
 
 Parse JQL query string into AST.
@@ -114,6 +124,10 @@ Transform raw field data into constants map for conversion.
   - `versionMap`: (Optional) Version name to ID mapping
 
 **Returns:** ConstantsMap object
+
+Existing top-level enum value mappings are preserved. If an enum field name
+conflicts with a reserved configuration key (such as `fieldMap` or `projectMap`),
+its value mapping is stored under the optional `enumValueMaps` property instead.
 
 **Example:**
 ```typescript
@@ -196,6 +210,9 @@ interface RawField {
 
 ## 🧪 Development
 
+Use Node.js 22.18+ (22.x), 24.11+ (24.x), or 26+ for the development tools.
+The published package's runtime requirement remains Node.js >=22.0.0.
+
 ```bash
 # Install dependencies
 pnpm install
@@ -208,6 +225,9 @@ pnpm test:watch
 
 # Build
 pnpm build
+
+# Run type checking, lint, existing tests, and build (also runs before publishing)
+pnpm check
 
 # Run benchmark
 pnpm benchmark

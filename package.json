@@ -1,6 +1,6 @@
 {
   "name": "@thornfe/jql2iql",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "A Translator That Converts Jira JQL into Gitee IQL",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -27,8 +27,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "check": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
     "benchmark": "tsx benchmark/index.ts",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm check"
   },
   "repository": {
     "type": "git",
@@ -57,18 +60,18 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
-    "@atlaskit/jql-parser": "^2.0.1",
-    "@types/node": "^22.14.1",
-    "@typescript-eslint/eslint-plugin": "^8.53.0",
-    "@typescript-eslint/parser": "^8.53.0",
+    "@atlaskit/jql-parser": "^3.1.0",
+    "@types/node": "^24.19.1",
+    "@typescript-eslint/eslint-plugin": "^8.71.1",
+    "@typescript-eslint/parser": "^8.71.1",
     "antlr4ts": "0.5.0-alpha.4",
-    "eslint": "^9.39.2",
+    "eslint": "^10.12.0",
     "ts-node": "^10.9.2",
-    "tsdown": "0.20.0-beta.3",
+    "tsdown": "0.23.0",
     "tslib": "^2.8.1",
-    "tsx": "^4.19.2",
-    "typescript": "^5.8.3",
-    "vitest": "^4.0.17"
+    "tsx": "^4.23.15",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.3"
   },
   "homepage": "https://github.com/thornfe/jql-to-iql#readme"
 }

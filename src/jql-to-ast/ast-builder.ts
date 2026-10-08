@@ -17,8 +17,8 @@ import {
 } from '../constants';
 
 // 常量优化：使用 Set 提高查找性能
-const KEYWORDS = new Set([LOGICAL_OPERATORS.AND, LOGICAL_OPERATORS.OR, LOGICAL_OPERATORS.NOT]);
-const OPERATORS = new Set([
+const KEYWORDS = new Set<string>([LOGICAL_OPERATORS.AND, LOGICAL_OPERATORS.OR, LOGICAL_OPERATORS.NOT]);
+const OPERATORS = new Set<string>([
   COMPARISON_OPERATORS.EQUAL,
   COMPARISON_OPERATORS.NOT_EQUAL,
   COMPARISON_OPERATORS.GREATER_THAN,
@@ -44,7 +44,7 @@ export function buildAST(node: ParseTree | undefined): ASTNode | null {
   if (node instanceof TerminalNode) {
     const text = node.text;
     // 跳过操作符和关键字（它们会在父节点中处理）
-    if (KEYWORDS.has(text.toUpperCase()) || OPERATORS.has(text)) {
+    if (KEYWORDS.has(text.toUpperCase()) || OPERATORS.has(text) || SKIP_TERMINALS.has(text)) {
       return null;
     }
     return { type: 'Literal', value: text };
@@ -219,10 +219,12 @@ function buildLogicalClauseAST(node: ParseTree, operator: 'OR' | 'AND'): ASTNode
   // 从右向左构建链，保持左结合性
   const lastOpIndex = opIndices[opIndices.length - 1];
   let result = buildAST(children[lastOpIndex + 1]);
+  if (!result) return null;
 
   for (let i = opIndices.length - 1; i >= 0; i--) {
     const leftIndex = i === 0 ? 0 : opIndices[i - 1] + 1;
     const leftNode = buildAST(children[leftIndex]);
+    if (!leftNode) return null;
 
     if (leftNode && result) {
       result = {
@@ -322,6 +324,8 @@ function buildQueryAST(node: ParseTree): ASTNode | null {
     const childInfo = getNodeInfo(child);
     if (childInfo.ruleName === JQL_CONTEXT.WHERE) {
       whereClause = buildAST(child);
+      // A failed WHERE must not become a valid sort-only query.
+      if (!whereClause) return null;
     } else if (childInfo.ruleName === JQL_CONTEXT.ORDER_BY) {
       orderByClause = buildOrderByAST(child);
     }

@@ -178,13 +178,23 @@ export function transformFieldsToConstantsMap(
     }
   }
 
+  // Keep legacy top-level enum aliases, but never overwrite converter configuration.
+  const reservedKeys = new Set(['projectMap', 'versionMap', 'component', 'cascade', 'fieldMap', 'enumValueMaps']);
+  const collisions = Object.fromEntries(
+    Object.entries(enumValueMaps).filter(([key]) => reservedKeys.has(key))
+  );
+  const aliases = Object.fromEntries(
+    Object.entries(enumValueMaps).filter(([key]) => !reservedKeys.has(key))
+  );
+
   return {
     projectMap,
     versionMap,
     component: componentMap,
     cascade: Object.keys(cascadeMaps).length > 0 ? cascadeMaps : undefined,
     fieldMap,
-    ...enumValueMaps,
+    ...aliases,
+    ...(Object.keys(collisions).length > 0 ? { enumValueMaps: collisions } : {}),
   };
 }
 
